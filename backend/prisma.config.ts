@@ -1,10 +1,11 @@
 // backend/prisma.config.ts
-import "dotenv/config";
-import { defineConfig } from "prisma/config";
+import "dotenv/config"; // 環境変数を読み込むために必要です
+import { defineConfig, env } from "@prisma/config";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
   datasource: {
-    url: process.env.DATABASE_URL ?? "file:./dev.db",
+    // Railwayの環境変数 DATABASE_URL をここで吸い上げるように一元化します
+    url: env("DATABASE_URL"),
   },
 });
