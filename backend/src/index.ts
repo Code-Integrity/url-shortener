@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { PrismaClient } from "./generated/client"; // Prisma v7のカスタムパスに応じて調整してください
-// ※ shortenerのルーティングが別にある場合は適宜インポート
+import { PrismaClient } from "@prisma/client";
 
 const app = express();
 const prisma = new PrismaClient();
