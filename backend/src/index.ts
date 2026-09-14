@@ -1,55 +1,56 @@
-// backend/src/index.ts
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
 import cors from "cors";
-import helmet from "helmet";
-import rateLimit from "express-rate-limit";
-import dotenv from "dotenv";
-import shortenRouter from "./routes/shorten";
-
-dotenv.config();
+import { PrismaClient } from "./generated/client"; // Prisma v7のカスタムパスに応じて調整してください
+// ※ shortenerのルーティングが別にある場合は適宜インポート
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const prisma = new PrismaClient();
 
-// 1. セキュリティヘッダーの自動付与 (OWASP推奨対策)
-app.use(helmet());
-
-// 2. CORS制限 (許可されたフロントエンドドメインのみ接続可能)
+// 1. デバッグ用ログとCORSの緩和設定
 app.use(
   cors({
-    origin: FRONTEND_URL,
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type"],
+    origin: (origin, callback) => {
+      // 本番環境での判定ログを可視化
+      console.log("--------------------------------------------------");
+      console.log("Configured FRONTEND_URL:", `"${process.env.FRONTEND_URL}"`);
+      console.log("Incoming Request Origin :", `"${origin}"`);
+      console.log("--------------------------------------------------");
+
+      // 切り分けのため、一時的にリクエスト元をすべて許可（true）してCORSポリシーをパスさせる
+      callback(null, true);
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 
-// 3. 経済的なDoS攻撃/ブルートフォース対策 (1分間に10回までの制限)
-const limiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1分間
-  max: 10, // 最大10リクエスト
-  message: {
-    error: "Too many requests from this IP, please try again after a minute.",
-  },
-  standardHeaders: true, // `RateLimit-*` ヘッダーを返す
-  legacyHeaders: false, // 旧 `X-RateLimit-*` ヘッダーを非表示に
-});
-app.use(limiter);
-
-// 4. ボディパーサー
 app.use(express.json());
 
-// 5. ルーティングの適用
-app.use("/", shortenRouter);
-
-// 6. グローバルエラーハンドリング（予期せぬエラーによるスタックトレースの漏洩防止）
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(`[ERROR] [${new Date().toISOString()}]`, err.stack || err);
-  res.status(500).json({ error: "An internal server error occurred." });
+// 2. DB疎通確認用のヘルスチェックエンドポイント
+app.get("/health", async (req, res) => {
+  try {
+    // 実際にDBにクエリを投げてPrismaとPostgreSQLの接続をテスト
+    await prisma.$queryRaw`SELECT 1`;
+    res.status(200).json({
+      status: "ok",
+      database: "connected",
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("【Health Check Error】DB connection failed:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Database connection failed",
+      error: error.message,
+    });
+  }
 });
 
-// サーバー起動
+// 既存の /shorten などのルーティングをここに配置
+// app.use('/shorten', shortenRouter);
+
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`[START] Server is running on port ${PORT}`);
-  console.log(`[START] CORS allowed origin: ${FRONTEND_URL}`);
+  console.log(`Server is running on port ${PORT}`);
 });
