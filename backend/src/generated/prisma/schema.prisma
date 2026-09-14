@@ -1,0 +1,17 @@
+// backend/prisma/schema.prisma
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma" // ★公式通り、カスタムフォルダへ出力するように設定
+}
+
+model Url {
+  id          String   @id
+  originalUrl String
+  createdAt   DateTime @default(now())
+
+  @@index([id])
+}
