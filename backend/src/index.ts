@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "./generated/prisma/index"; // パスをルーター側と統一
+import { PrismaClient } from "@prisma/client";
 
 // ★【重要】デフォルトエクスポート(export default)されているため、波括弧を外してインポート
 import shortenRouter from "./routes/shorten";
