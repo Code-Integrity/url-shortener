@@ -15,14 +15,18 @@ export const prisma = new PrismaClient({ adapter });
 
 const app = express();
 
+// --- ★CORS設定を本番環境（Vercel）とプレフライト（OPTIONS）に最適化します ---
 app.use(
   cors({
-    origin: (origin, callback) => {
-      callback(null, true);
-    },
+    origin: [
+      "https://vercel.app", // 本番環境（Vercel）のURL
+      "http://localhost:5173", // ローカル開発用（Vite標準）
+      "http://localhost:5174",
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 200, // ブラウザのPreflight（事前確認リクエスト）を確実に200 OKでパスさせる
   }),
 );
 
