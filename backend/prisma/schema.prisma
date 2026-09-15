@@ -1,11 +1,9 @@
 datasource db {
-  provider = "postgresql" // ★ sqlite から postgresql に変更
-
+  provider = "postgresql"
 }
 
 generator client {
   provider = "prisma-client-js"
-  // outputは先ほど削除したままでOKです
 }
 
 model Url {
