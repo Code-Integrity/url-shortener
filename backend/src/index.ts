@@ -4,13 +4,18 @@ import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
-// ★【重要】デフォルトエクスポート(export default)されているため、波括弧を外してインポート
-import shortenRouter from "./routes/shorten";
+// ★【超重要】本番環境の PostgreSQL へ安全かつ確実に接続するためのプール設定に変更します
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl:
+    process.env.NODE_ENV === "production"
+      ? { rejectUnauthorized: false }
+      : false,
+  max: 10, // 接続数の上限を明示してエラーを防ぐ
+  idleTimeoutMillis: 30000,
+});
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
-
-// ★【重要】ルーター側で使い回せるように「export」を頭に付けます
 export const prisma = new PrismaClient({ adapter });
 
 const app = express();
