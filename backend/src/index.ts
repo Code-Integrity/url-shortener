@@ -4,7 +4,6 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 const app = express();
-const prisma = new PrismaClient();
 
 // 1. デバッグ用ログとCORSの緩和設定
 app.use(

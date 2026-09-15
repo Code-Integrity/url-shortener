@@ -1,11 +1,9 @@
 datasource db {
-  provider = "postgresql" // ★ sqlite から postgresql に変更
-  url      = env("DATABASE_URL") // ★ urlに環境変数を紐付ける記述を追加（未記述の場合）
+  provider = "postgresql"
 }
 
 generator client {
   provider = "prisma-client-js"
-  // outputは先ほど削除したままでOKです
 }
 
 model Url {
