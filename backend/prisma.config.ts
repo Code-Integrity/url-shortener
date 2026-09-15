@@ -1,12 +1,13 @@
 import "dotenv/config";
-import { defineConfig } from "@prisma/config";
-
-// 本番環境の接続文字列（環境変数）がある場合はそれを使い、なければローカルのSQLiteをデフォルトにする
-const databaseUrl = process.env.DATABASE_URL || "file:./prisma/dev.db";
+import { defineConfig, env } from "@prisma/config";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
+  migrations: {
+    path: "prisma/migrations",
+  },
   datasource: {
-    url: databaseUrl,
+    // .env の DATABASE_URL をそのまま安全に読み込みます
+    url: env("DATABASE_URL"),
   },
 });
