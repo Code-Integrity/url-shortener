@@ -14,3 +14,4 @@ model Url {
   @@index([id])
 }
 
+
