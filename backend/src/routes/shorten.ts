@@ -1,4 +1,3 @@
-// backend/src/routes/shorten.ts の上部を確認してください
 import {
   Router,
   Request,
@@ -6,21 +5,15 @@ import {
   NextFunction,
   RequestHandler,
 } from "express";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import dotenv from "dotenv";
 import crypto from "crypto";
 
-// ⭕ 本番でもローカルでも絶対にパスがズレない、PrismaClientのインポート方法
-import { PrismaClient } from "../generated/prisma/index";
+// ★【重要】独自のアダプター初期化をすべて削除し、index.ts から本番用 prisma をインポートします
+import { prisma } from "../index";
 
 dotenv.config();
 
 const router = Router();
-
-const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL || "file:./prisma/dev.db",
-});
-const prisma = new PrismaClient({ adapter });
 
 /**
  * OWASP-compliant simple URL validation
@@ -104,7 +97,6 @@ router.post("/shorten", (async (
       `[INFO] [${new Date().toISOString()}] Short URL created: ${shortId} -> ${originalUrl}`,
     );
 
-    // ⭕ Explicitly cast to pure String to resolve strict TS2322 type checking in test runner
     res.status(201).json({
       shortId: String(urlEntry.id),
       originalUrl: String(urlEntry.originalUrl),
@@ -134,8 +126,6 @@ router.get("/:shortId", (async (
       return;
     }
 
-    // Security: Prevent Open Redirect abuse by instructing browsers not to cache this redirect
-    // @ts-ignore - Bypass strict library-level HTTP header type mismatch in the test execution environment
     res.writeHead(302, {
       Location: String(urlEntry.originalUrl),
       "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",

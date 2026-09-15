@@ -1,25 +1,23 @@
 import express from "express";
 import cors from "cors";
-// 1. PostgreSQL 用のドライバーと Prisma アダプターをインポート
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "./generated/prisma/index"; // パスをルーター側と統一
 
-// 2. PostgreSQL の接続プール（Pool）を作成し、PrismaClient にアダプターとして渡す
+// ★【重要】デフォルトエクスポート(export default)されているため、波括弧を外してインポート
+import shortenRouter from "./routes/shorten";
+
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter }); // ★ここに adapter を渡すのが必須になりました
+
+// ★【重要】ルーター側で使い回せるように「export」を頭に付けます
+export const prisma = new PrismaClient({ adapter });
 
 const app = express();
 
-// --- 以下の CORS 設定やヘルスチェックは、今のままでバッチリ合っています！ ---
 app.use(
   cors({
     origin: (origin, callback) => {
-      console.log("--------------------------------------------------");
-      console.log("Configured FRONTEND_URL:", `"${process.env.FRONTEND_URL}"`);
-      console.log("Incoming Request Origin :", `"${origin}"`);
-      console.log("--------------------------------------------------");
       callback(null, true);
     },
     credentials: true,
@@ -30,6 +28,10 @@ app.use(
 
 app.use(express.json());
 
+// ★【重要】URL短縮ルーターを登録
+// ルーター側で router.post("/shorten", ...) と定義されているため、第一引数は "/" で完全に一致します！
+app.use("/", shortenRouter);
+
 app.get("/health", async (req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
@@ -39,7 +41,6 @@ app.get("/health", async (req, res) => {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    console.error("【Health Check Error】DB connection failed:", error);
     res.status(500).json({
       status: "error",
       message: "Database connection failed",
@@ -48,7 +49,7 @@ app.get("/health", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
