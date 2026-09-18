@@ -24,14 +24,14 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "https://url-shortener-steel-beta.vercel.app",
+      process.env.FRONTEND_URL || "https://url-shortener-steel-beta.vercel.app",
       "http://localhost:5173",
       "http://localhost:5174",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    optionsSuccessStatus: 200,
+    optionsSuccessStatus: 200, // Provides a 200 OK status for legacy browsers on OPTIONS requests
   }),
 );
 
