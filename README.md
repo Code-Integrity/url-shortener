@@ -4,10 +4,25 @@ A lightweight, secure, and production-ready **URL Shortener API & Frontend Appli
 
 ---
 
-## 🚀 Live Demo & Deployments
+## 🚀 Live Demo
 
-- **Frontend Web App:** [https://url-shortener-steel-beta.vercel.app](https://url-shortener-steel-beta.vercel.app) (Hosted on Vercel)
-- **Backend API Server:** [https://railway.app](https://railway.app) (Hosted on Railway)
+- **Frontend (UI):** [https://url-shortener-steel-beta.vercel.app](https://url-shortener-steel-beta.vercel.app) _(Hosted on Vercel)_
+
+### 🧪 How to Test
+
+You can test the application by copying and pasting a long URL like the one below into the input field:
+
+```text
+https://www.google.co.jp/maps/search/%E6%9D%B1%E4%BA%AC%E9%A7%85/@35.6811398,139.7644811,17z/data=!3m1!4b1?entry=ttu
+```
+
+### 🏗️ Architecture & Deployment
+
+The application is decoupled into a monorepo structure and deployed across dedicated cloud platforms:
+
+- **Frontend App:** React 19 + Vite deployed on **Vercel**
+- **Backend API:** Node.js Express + Prisma deployed on **Railway** (`https://url-shortener-production-634e.up.railway.app/`)
+- **Database:** PostgreSQL hosted on **Railway**
 
 ---
 

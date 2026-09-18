@@ -8,7 +8,6 @@ import {
 import dotenv from "dotenv";
 import crypto from "crypto";
 
-// ★【重要】独自のアダプター初期化をすべて削除し、index.ts から本番用 prisma をインポートします
 import { prisma } from "../index";
 
 dotenv.config();

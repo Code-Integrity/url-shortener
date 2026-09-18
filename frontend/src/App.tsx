@@ -38,7 +38,7 @@ export default function App() {
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.error) {
         const errData = err.response.data.error;
-        // オブジェクト形式で届いた場合はメッセージを抽出し、それ以外は文字列として扱う
+
         if (typeof errData === "object" && errData !== null) {
           setError(errData.message || JSON.stringify(errData));
         } else {
